@@ -18,10 +18,9 @@ void solveProbOne() {
 
     int maxSize = 1;
     int numberOfSeq = x.size();
-    int arr[x.size()] = {1};
+    std::vector<int> arr(x.size(), 1);
 
     for (long unsigned int i = 1; i < x.size(); i++) {
-        arr[i] = 1;
         for (long unsigned int j = 0; j < i; j++) {
             if (x[i] > x[j]) {
                 int sum = arr[j] + 1;
@@ -32,7 +31,7 @@ void solveProbOne() {
                     if (sum > maxSize) {
                         numberOfSeq = 1;
                         maxSize = arr[i];
-                    } else if (arr[i] == maxSize) {
+                    } else if (sum == maxSize) {
                         numberOfSeq++;
                     }
                 }
@@ -49,7 +48,7 @@ void solveProbTwo() {
     readVector(&x);
     readVector(&y);
 
-    int arr[y.size()] = {0};
+    std::vector<int> arr(y.size(), 0);
 
     int maxSize = 0;
 

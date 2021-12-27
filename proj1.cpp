@@ -1,7 +1,6 @@
 #include <iostream>
-#include <sstream>
-#include <string>
 #include <vector>
+#include <algorithm>
 
 void readVector(std::vector<int> *x) {
     int intRead;
@@ -13,20 +12,30 @@ void readVector(std::vector<int> *x) {
     } while ((c = getchar()) != '\n' && c != EOF);
 }
 
+void readVectorCommonValues(std::vector<int> *x, std::vector<int> *y) {
+    int intRead;
+    char c;
+
+    do {
+        std::cin >> intRead;
+    
+        if(std::find((*x).begin(), (*x).end(), intRead) != (*x).end())
+            (*y).push_back(intRead);
+        
+    } while ((c = getchar()) != '\n' && c != EOF);
+}
+
 void solveProbOne() {
     std::vector<int> x;
     readVector(&x);
 
-    
+    long int maxSize = 1;
+    long int size = x.size();
+    long int numberOfSeq = size;
+    std::vector<std::vector<int>> arr(size, std::vector<int> (2, 1));
 
-    int maxSize = 1;
-    long int numberOfSeq = x.size();
-    std::vector<std::vector<int>> arr(x.size(), std::vector<int> (2, 1));
-
-    for (long unsigned int i = 1; i < x.size(); i++) {
-        arr[i][0] = 1;
-        arr[i][1] = 1;
-        for (long unsigned int j = 0; j < i; j++) {
+    for (long int i = 1; i < size; i++) {
+        for (long int j = 0; j < i; j++) {
             if (x[i] > x[j]) {
                 int sum = arr[j][0] + 1;
                 if (sum > arr[i][0]) {
@@ -53,7 +62,7 @@ void solveProbTwo() {
     std::vector<int> x;
     std::vector<int> y;
     readVector(&x);
-    readVector(&y);
+    readVectorCommonValues(&x, &y);
 
     std::vector<int> arr(y.size(), 0);
 

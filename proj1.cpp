@@ -4,36 +4,43 @@
 #include <vector>
 
 void readVector(std::vector<int> *x) {
-    int intToRead;
+    int intRead;
+    char c;
 
     do {
-        std::cin >> intToRead;
-        (*x).push_back(intToRead);
-    } while (getchar() != '\n');
+        std::cin >> intRead;
+        (*x).push_back(intRead);
+    } while ((c = getchar()) != '\n' && c != EOF);
 }
 
 void solveProbOne() {
     std::vector<int> x;
     readVector(&x);
 
+    
+
     int maxSize = 1;
-    int numberOfSeq = x.size();
-    std::vector<int> arr(x.size(), 1);
+    long int numberOfSeq = x.size();
+    std::vector<std::vector<int>> arr(x.size(), std::vector<int> (2, 1));
 
     for (long unsigned int i = 1; i < x.size(); i++) {
+        arr[i][0] = 1;
+        arr[i][1] = 1;
         for (long unsigned int j = 0; j < i; j++) {
             if (x[i] > x[j]) {
-                int sum = arr[j] + 1;
-                if (sum > arr[i]) {
-                    arr[i] = sum;
+                int sum = arr[j][0] + 1;
+                if (sum > arr[i][0]) {
+                    arr[i][0] = sum;
+                    arr[i][1] = arr[j][1];
+                } else if(sum == arr[i][0]) {
+                    arr[i][1] += arr[j][1];
                 }
-                if (sum == arr[i]) {
-                    if (sum > maxSize) {
-                        numberOfSeq = 1;
-                        maxSize = arr[i];
-                    } else if (sum == maxSize) {
-                        numberOfSeq++;
-                    }
+
+                if (sum > maxSize) {
+                    maxSize = arr[i][0];
+                    numberOfSeq = arr[i][1];
+                } else if (sum == maxSize) {
+                    numberOfSeq += arr[j][1];
                 }
             }
         }

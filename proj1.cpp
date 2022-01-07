@@ -1,76 +1,228 @@
 #include <iostream>
+#include <unordered_map>
 #include <vector>
-#include <algorithm>
 
-void readVector(std::vector<int> *x) {
-    int intRead;
-    char c;
+int readVector(std::vector<int> *vec) {
+    int intRead, size = 0;
+    bool neg = false, read = false;
+    char c = '\0';
 
     do {
-        std::cin >> intRead;
-        (*x).push_back(intRead);
-    } while ((c = getchar()) != '\n' && c != EOF);
+        intRead = 0;
+        read = false;
+
+        c = getchar();
+        if (c == '-') {
+            neg = true;
+            c = getchar();
+        }
+
+        for (; (c > 47 && c < 58); c = getchar()) {
+            intRead = intRead * 10 + c - 48;
+            read = true;
+        }
+
+        if (neg) intRead *= -1;
+
+        if (read) {
+            (*vec).push_back(intRead);
+            size++;
+        }
+    } while (c != EOF && c != '\n');
+
+    return size;
 }
 
-void readVectorCommonValues(std::vector<int> *x, std::vector<int> *y) {
-    int intRead;
-    char c;
+int filterProbOne(std::vector<int> *vec, int *x, int size) {
+    int prev = x[0], curr = 1;
 
-    do {
-        std::cin >> intRead;
-    
-        if(std::find((*x).begin(), (*x).end(), intRead) != (*x).end())
-            (*y).push_back(intRead);
-        
-    } while ((c = getchar()) != '\n' && c != EOF);
+    if (prev == x[1]) {
+        for (int i = 1; i < size; i++) {
+            if (x[i] == prev) {
+                prev = x[i];
+                curr++;
+            } else {
+                break;
+            }
+        }
+    } else if (prev > x[1]) {
+        for (int i = 1; i < size; i++) {
+            if (prev > x[i]) {
+                prev = x[i];
+                curr++;
+            } else {
+                break;
+            }
+        }
+    } else {
+        for (int i = 1; i < size; i++) {
+            if (prev < x[i]) {
+                prev = x[i];
+                curr++;
+                (*vec)[i] = curr;
+            } else {
+                break;
+            }
+        }
+    }
+
+    return curr;
 }
 
 void solveProbOne() {
     std::vector<int> x;
-    readVector(&x);
+    int size = readVector(&x);
 
-    long int maxSize = 1;
-    long int size = x.size();
-    long int numberOfSeq = size;
-    std::vector<std::vector<int>> arr(size, std::vector<int> (2, 1));
+    if (size == 0) {
+        std::cout << 0 << ' ' << 0 << '\n';
+        return;
+    }
 
-    for (long int i = 1; i < size; i++) {
-        for (long int j = 0; j < i; j++) {
+    std::vector<int> arrSize(size, 1);
+    std::vector<int> arrNumbOfSeq(size, 1);
+
+    // int start = filterProbOne(&arrSize, x, size);
+
+    long int maxSize = 0;
+    long int numberOfSeq = 0;
+
+    long int lastMaxSize = 0;
+    long int lastNumbOfSeq = 0;
+
+    for (int i = 1; i < size; i++) {
+        lastMaxSize = arrSize[i];
+        lastNumbOfSeq = arrNumbOfSeq[i];
+        for (int j = 0; j < i; j++) {
             if (x[i] > x[j]) {
-                int sum = arr[j][0] + 1;
-                if (sum > arr[i][0]) {
-                    arr[i][0] = sum;
-                    arr[i][1] = arr[j][1];
-                } else if(sum == arr[i][0]) {
-                    arr[i][1] += arr[j][1];
-                }
-
-                if (sum > maxSize) {
-                    maxSize = arr[i][0];
-                    numberOfSeq = arr[i][1];
-                } else if (sum == maxSize) {
-                    numberOfSeq += arr[j][1];
+                if (arrSize[j] + 1 > lastMaxSize) {
+                    lastMaxSize = arrSize[j] + 1;
+                    lastNumbOfSeq = arrNumbOfSeq[j];
+                } else if (arrSize[j] + 1 == lastMaxSize) {
+                    lastNumbOfSeq += arrNumbOfSeq[j];
                 }
             }
+        }
+        arrSize[i] = lastMaxSize;
+        arrNumbOfSeq[i] = lastNumbOfSeq;
+    }
+
+    for (int i = 0; i < size; i++) {
+        if (arrSize[i] > maxSize) {
+            maxSize = arrSize[i];
+            numberOfSeq = arrNumbOfSeq[i];
+        } else if (arrSize[i] == maxSize) {
+            numberOfSeq += arrNumbOfSeq[i];
         }
     }
 
     std::cout << maxSize << ' ' << numberOfSeq << '\n';
 }
 
-void solveProbTwo() {
-    std::vector<int> x;
-    std::vector<int> y;
-    readVector(&x);
-    readVectorCommonValues(&x, &y);
+int readVectorAndCreatMap(std::vector<int> *vec,
+                          std::unordered_map<int, int> *umap) {
+    int intRead, size = 0;
+    bool neg = false, read = false;
+    char c = '\0';
 
-    std::vector<int> arr(y.size(), 0);
+    do {
+        intRead = 0;
+        read = false;
+
+        c = getchar();
+        if (c == '-') {
+            neg = true;
+            c = getchar();
+        }
+
+        for (; (c > 47 && c < 58); c = getchar()) {
+            intRead = intRead * 10 + c - 48;
+            read = true;
+        }
+
+        if (neg) intRead *= -1;
+
+        if (read) {
+            if ((*umap).find(intRead) == (*umap).end())
+                (*umap).insert({intRead, size});
+            (*vec).push_back(intRead);
+            size++;
+        }
+    } while (c != EOF && c != '\n');
+
+    return size;
+}
+
+int readVectorCreatMapAndFilter(std::vector<int> *vec,
+                                std::unordered_map<int, int> *umap,
+                                std::unordered_map<int, int> filter) {
+    int intRead, size = 0;
+    bool neg = false, read = false;
+    char c = '\0';
+
+    do {
+        intRead = 0;
+        read = false;
+
+        c = getchar();
+        if (c == '-') {
+            neg = true;
+            c = getchar();
+        }
+
+        for (; (c > 47 && c < 58); c = getchar()) {
+            intRead = intRead * 10 + c - 48;
+            read = true;
+        }
+
+        if (neg) intRead *= -1;
+
+        if (read && filter.find(intRead) != filter.end()) {
+            if ((*umap).find(intRead) == (*umap).end())
+                (*umap).insert({intRead, size});
+            (*vec).push_back(intRead);
+            size++;
+        }
+    } while (c != EOF && c != '\n');
+
+    return size;
+}
+
+int filterVectorWithMap(std::vector<int> *res, std::vector<int> x, int x_size,
+                        std::unordered_map<int, int> x_umap) {
+    int size = 0;
+    for (int i = 0; i < x_size; i++) {
+        if (x_umap.find(x[i]) != x_umap.end()) {
+            (*res).push_back(x[i]);
+            size++;
+        }
+    }
+
+    return size;
+}
+
+void solveProbTwo() {
+    std::unordered_map<int, int> aux_umap;
+    std::vector<int> aux;
+    int aux_size = readVectorAndCreatMap(&aux, &aux_umap);
+
+    std::unordered_map<int, int> y_umap;
+    std::vector<int> y;
+    int y_size = readVectorCreatMapAndFilter(&y, &y_umap, aux_umap);
+
+    aux_umap.clear();
+
+    std::vector<int> x;
+    int x_size = filterVectorWithMap(&x, aux, aux_size, y_umap);
+
+    y_umap.clear();
+
+    std::vector<int> arr(y_size, 0);
 
     int maxSize = 0;
 
-    for (long unsigned int i = 0; i < x.size(); i++) {
+    for (int i = 0; i < x_size; i++) {
         int previousBiggerSize = 0;
-        for (long unsigned int j = 0; j < y.size(); j++) {
+        for (int j = 0; j < y_size; j++) {
             if (x[i] > y[j] && arr[j] > previousBiggerSize) {
                 previousBiggerSize = arr[j];
             }
@@ -87,12 +239,13 @@ void solveProbTwo() {
 }
 
 int main() {
-    int problemNum;
-    std::cin >> problemNum;
+    char problemNum;
+    problemNum = getchar();
+    getchar();
 
-    if (problemNum == 1)
+    if (problemNum == '1')
         solveProbOne();
-    else if (problemNum == 2)
+    else if (problemNum == '2')
         solveProbTwo();
 
     return 0;

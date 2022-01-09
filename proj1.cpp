@@ -33,42 +33,6 @@ int readVector(std::vector<int> *vec) {
     return size;
 }
 
-int filterProbOne(std::vector<int> *vec, int *x, int size) {
-    int prev = x[0], curr = 1;
-
-    if (prev == x[1]) {
-        for (int i = 1; i < size; i++) {
-            if (x[i] == prev) {
-                prev = x[i];
-                curr++;
-            } else {
-                break;
-            }
-        }
-    } else if (prev > x[1]) {
-        for (int i = 1; i < size; i++) {
-            if (prev > x[i]) {
-                prev = x[i];
-                curr++;
-            } else {
-                break;
-            }
-        }
-    } else {
-        for (int i = 1; i < size; i++) {
-            if (prev < x[i]) {
-                prev = x[i];
-                curr++;
-                (*vec)[i] = curr;
-            } else {
-                break;
-            }
-        }
-    }
-
-    return curr;
-}
-
 void solveProbOne() {
     std::vector<int> x;
     int size = readVector(&x);
@@ -78,10 +42,13 @@ void solveProbOne() {
         return;
     }
 
-    std::vector<int> arrSize(size, 1);
-    std::vector<int> arrNumbOfSeq(size, 1);
+    int arrSize[size];
+    int arrNumbOfSeq[size];
 
-    // int start = filterProbOne(&arrSize, x, size);
+    for (int i = 0; i < size; i++) {
+        arrSize[i] = 1;
+        arrNumbOfSeq[i] = 1;
+    }
 
     long int maxSize = 0;
     long int numberOfSeq = 0;
